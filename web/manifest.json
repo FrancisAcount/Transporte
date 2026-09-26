@@ -1,0 +1,11 @@
+{
+  "name": "Transporte Escolar Maranata",
+  "short_name": "Maranata",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0F172A",
+  "description": "Sistema de gestión de transporte escolar Maranata",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}
