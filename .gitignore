@@ -15,3 +15,7 @@ pubspec.lock
 # --- Sistema ---
 .DS_Store
 Thumbs.db
+
+# --- Crash dumps de la JVM (ocurren si Gradle se queda sin memoria) ---
+hs_err_pid*.log
+replay_pid*.log
