@@ -16,6 +16,12 @@ pubspec.lock
 .DS_Store
 Thumbs.db
 
+# --- Artefactos de build de apps ---
+*.apk
+*.aab
+*.ipa
+*.app
+
 # --- Crash dumps de la JVM (ocurren si Gradle se queda sin memoria) ---
 hs_err_pid*.log
 replay_pid*.log

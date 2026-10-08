@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../data/admin_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common_widgets.dart';
+import 'admin/admin_panel_view.dart';
 
 /// ⚙️ Apartado 7: ajustes generales del sistema y perfil de usuario.
 class SettingsView extends StatefulWidget {
@@ -31,6 +33,8 @@ class _SettingsViewState extends State<SettingsView> {
               ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: perfil), const SizedBox(width: 16), Expanded(child: general)])
               : Column(children: [perfil, const SizedBox(height: 16), general]);
         }),
+        const SizedBox(height: 16),
+        _buildAdminCard(),
         const SizedBox(height: 16),
         _buildAboutCard(),
       ],
@@ -125,6 +129,90 @@ class _SettingsViewState extends State<SettingsView> {
     );
   }
 
+  /// Tarjeta roja de acceso al panel administrativo (con PIN).
+  Widget _buildAdminCard() {
+    return SectionCard(
+      title: 'Panel administrativo',
+      subtitle: 'Gestión de matrícula, flota, rutas y alertas',
+      icon: Icons.admin_panel_settings_rounded,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+            decoration: BoxDecoration(
+              color: AppColors.guindo.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppColors.guindo.withValues(alpha: 0.35),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 16,
+                  color: AppColors.guindo,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Zona restringida: se pedirá el PIN de administrador '
+                    'para entrar.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.guindo,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _abrirPanel,
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.guindo,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Icon(Icons.shield_rounded, size: 19),
+              label: const Text('Abrir panel administrativo'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Pide el PIN y, si es correcto, abre el panel administrativo.
+  Future<void> _abrirPanel() async {
+    final store = AdminStore.instance;
+    if (!store.sesionAdmin) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => _DialogoPin(store: store),
+      );
+      if (ok != true || !context.mounted) return;
+      store.sesionAdmin = true;
+    }
+    if (!context.mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AdminPanelView()),
+    );
+  }
+
   /// Tarjeta de información del sistema.
   Widget _buildAboutCard() {
     return const SectionCard(
@@ -176,6 +264,85 @@ class _SettingsViewState extends State<SettingsView> {
 
   void _toast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+/// Diálogo que pide el PIN de administrador antes de abrir el panel.
+class _DialogoPin extends StatefulWidget {
+  const _DialogoPin({required this.store});
+
+  final AdminStore store;
+
+  @override
+  State<_DialogoPin> createState() => _DialogoPinState();
+}
+
+class _DialogoPinState extends State<_DialogoPin> {
+  final _pin = TextEditingController();
+  String? _error;
+
+  @override
+  void dispose() {
+    _pin.dispose();
+    super.dispose();
+  }
+
+  void _validar() {
+    if (_pin.text.trim() == widget.store.pin) {
+      Navigator.of(context).pop(true);
+    } else {
+      setState(() => _error = 'PIN incorrecto, inténtalo de nuevo');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Row(
+        children: [
+          Icon(Icons.shield_rounded, color: AppColors.guindo),
+          SizedBox(width: 10),
+          Expanded(child: Text('Acceso restringido')),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ingresa el PIN de administrador para abrir el panel '
+            '(PIN inicial: 2580).',
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _pin,
+            obscureText: true,
+            keyboardType: TextInputType.number,
+            maxLength: 8,
+            autofocus: true,
+            onSubmitted: (_) => _validar(),
+            decoration: InputDecoration(
+              labelText: 'PIN de administrador',
+              prefixIcon: const Icon(Icons.key_rounded),
+              errorText: _error,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(
+          onPressed: _validar,
+          style: FilledButton.styleFrom(backgroundColor: AppColors.guindo),
+          child: const Text('Entrar al panel'),
+        ),
+      ],
+    );
   }
 }
 

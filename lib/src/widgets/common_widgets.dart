@@ -47,16 +47,30 @@ class SectionCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700)),
                       if (subtitle != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
-                          child: Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          child: Text(subtitle!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMuted)),
                         ),
                     ],
                   ),
                 ),
-                if (trailing != null) trailing!,
+                if (trailing != null) ...[
+                  const SizedBox(width: 8),
+                  Flexible(child: trailing!),
+                ],
               ],
             ),
             const SizedBox(height: 16),
@@ -241,6 +255,72 @@ class StatusChip extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+/// Barra de búsqueda corporativa reutilizable.
+///
+/// Se usa como buscador global en el Panel de Inicio, en la pantalla de
+/// Bienvenida y como filtro en el directorio de conductores. Es controlada
+/// externamente ([controller] + [onChanged]) para que cada vista decida qué
+/// hacer con la consulta.
+class AppSearchBar extends StatelessWidget {
+  const AppSearchBar({
+    super.key,
+    required this.hintText,
+    this.controller,
+    this.onChanged,
+    this.onClear,
+    this.autofocus = false,
+  });
+
+  final String hintText;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onClear;
+  final bool autofocus;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      autofocus: autofocus,
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(fontSize: 13.5, color: AppColors.textMuted),
+        prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
+        suffixIcon: (controller?.text.isNotEmpty ?? false)
+            ? IconButton(
+                icon: const Icon(Icons.close_rounded, size: 18),
+                color: AppColors.textMuted,
+                tooltip: 'Limpiar búsqueda',
+                onPressed: () {
+                  controller?.clear();
+                  onChanged?.call('');
+                  onClear?.call();
+                },
+              )
+            : null,
+        isDense: true,
+        filled: true,
+        fillColor: AppColors.background,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.guindo, width: 1.4),
+        ),
       ),
     );
   }

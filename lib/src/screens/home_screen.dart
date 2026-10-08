@@ -4,12 +4,25 @@ import '../models/menu_item.dart';
 import '../theme/app_colors.dart';
 import '../views/alerts_view.dart';
 import '../views/dashboard_view.dart';
+import '../views/driver_mode_view.dart';
 import '../views/drivers_view.dart';
 import '../views/fleet_view.dart';
-import '../views/routes_view.dart';
+import '../views/gallery_view.dart';
+import '../views/monitoring_view.dart';
 import '../views/settings_view.dart';
 import '../views/students_view.dart';
+import '../views/welcome_view.dart';
 import '../widgets/app_sidebar.dart';
+
+/// Índice del módulo «Bienvenida»: primera entrada del listado [_HomeScreenState._views].
+///
+/// La portada trae su propia cabecera de marca (título, buscador y acceso), así
+/// que en escritorio la cabecera general del shell se oculta en este índice para
+/// no duplicar dos barras horizontales.
+const int _kBienvenidaIndex = 0;
+
+/// Índice del módulo «Panel de Inicio» (destino del botón «Iniciar Sesión»).
+const int _kPanelIndex = 1;
 
 /// Pantalla principal: sidebar + cabecera + contenido del módulo activo.
 /// Es el único punto que controla qué apartado se muestra.
@@ -21,20 +34,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0; // Módulo activo (0..6)
+  int _selectedIndex = 0; // Módulo activo (0 = Bienvenida)
   bool _sidebarCollapsed = false; // Modo compacto en pantallas pequeñas
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// Mapa índice → widget de cada apartado. Mantiene el diseño desacoplado.
-  static const List<Widget> _views = [
-    DashboardView(),
-    RoutesView(),
-    FleetView(),
-    DriversView(),
-    StudentsView(),
-    AlertsView(),
-    SettingsView(),
-  ];
+  ///
+  /// Bienvenida es el índice [_kBienvenidaIndex]: se navega a ella desde el
+  /// sidebar como cualquier otro módulo, sin rutas ni pantallas intermedias.
+  ///
+  /// Se construye en cada build porque `WelcomeView` recibe el callback que
+  /// lo devuelve al Panel de Inicio; el resto son widgets constantes.
+  List<Widget> get _views => [
+        WelcomeView(onIniciarSesion: () => _selectModule(_kPanelIndex)),
+        const DashboardView(),
+        const MonitoringView(),
+        const FleetView(),
+        const DriversView(),
+        const StudentsView(),
+        const AlertsView(),
+        const GalleryView(),
+        const SettingsView(),
+        const DriverModeView(),
+      ];
 
   void _selectModule(int index) {
     if (index == _selectedIndex) return;
@@ -50,6 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final item = AppMenu.byIndex(_selectedIndex);
     final isMobile = MediaQuery.sizeOf(context).width < 900;
 
+    // La portada de bienvenida ya no es una pantalla aislada: es el módulo 0 del
+    // panel, así que se muestra siempre dentro del shell (sidebar fijo en
+    // escritorio / drawer en móvil) exactamente igual que los demás apartados.
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.background,
@@ -81,11 +106,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   /// Columna central: cabecera blanca + contenido del módulo.
+  ///
+  /// La vista de Bienvenida (índice 0) trae su propio header institucional,
+  /// así que se omite la cabecera global para no duplicarla.
   Widget _buildContent(MenuItem item) {
+    // La vista de Bienvenida (índice 0) trae su propio header institucional, así
+    // que se omite la cabecera global para no duplicarla. En móvil (< 900 px) sí
+    // se muestra, porque su botón de hamburguesa es la única forma de abrir el
+    // drawer y volver al resto de módulos.
+    final isWelcome = _selectedIndex == _kBienvenidaIndex &&
+        MediaQuery.sizeOf(context).width >= 900;
     return Column(
       children: [
-        _buildHeader(item),
-        const Divider(height: 1),
+        if (!isWelcome) _buildHeader(item),
+        if (!isWelcome) const Divider(height: 1),
         // AnimatedSwitcher da la transición instantánea y fluida entre apartados.
         Expanded(
           child: AnimatedSwitcher(
@@ -118,6 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           if (isMobile)
             IconButton(
+              tooltip: 'Abrir menú',
               icon: const Icon(Icons.menu_rounded),
               color: AppColors.sidebarBg,
               onPressed: () => _scaffoldKey.currentState?.openDrawer(),

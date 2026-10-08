@@ -1,4 +1,4 @@
-package com.example.transporte_maranata
+package com.colegiomaranata.transporte
 
 import io.flutter.embedding.android.FlutterActivity
 

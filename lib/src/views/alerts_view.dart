@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/admin_store.dart';
 import '../models/safety_alert.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common_widgets.dart';
@@ -11,38 +11,62 @@ class AlertsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final criticas = MockData.alerts.where((a) => a.nivel == AlertLevel.critical).length;
-    final advertencias = MockData.alerts.where((a) => a.nivel == AlertLevel.warning).length;
-    final pendientes = MockData.alerts.where((a) => !a.respondido).length;
+    return ListenableBuilder(
+      listenable: AdminStore.instance,
+      builder: (context, _) {
+        final alertas = AdminStore.instance.alertas;
+        final criticas =
+            alertas.where((a) => a.nivel == AlertLevel.critical).length;
+        final advertencias =
+            alertas.where((a) => a.nivel == AlertLevel.warning).length;
+        final pendientes = alertas.where((a) => !a.respondido).length;
 
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        MetricGrid(
+        return ListView(
+          padding: const EdgeInsets.all(24),
           children: [
-            StatCard(label: 'Alertas críticas', value: '$criticas', icon: Icons.report_gmailerrorred_rounded, caption: 'Requieren acción inmediata'),
-            StatCard(label: 'Advertencias', value: '$advertencias', icon: Icons.warning_amber_rounded, color: AppColors.warning, caption: 'Seguimiento en curso'),
-            StatCard(label: 'Sin responder', value: '$pendientes', icon: Icons.mark_email_unread_rounded, color: AppColors.info, caption: 'Asignadas a coordinación'),
-          ],
-        ),
-        const SizedBox(height: 20),
+            MetricGrid(
+              children: [
+                StatCard(
+                    label: 'Alertas críticas',
+                    value: '$criticas',
+                    icon: Icons.report_gmailerrorred_rounded,
+                    caption: 'Requieren acción inmediata'),
+                StatCard(
+                    label: 'Advertencias',
+                    value: '$advertencias',
+                    icon: Icons.warning_amber_rounded,
+                    color: AppColors.warning,
+                    caption: 'Seguimiento en curso'),
+                StatCard(
+                    label: 'Sin responder',
+                    value: '$pendientes',
+                    icon: Icons.mark_email_unread_rounded,
+                    color: AppColors.info,
+                    caption: 'Asignadas a coordinación'),
+              ],
+            ),
+            const SizedBox(height: 20),
 
-        // Bitácora
-        SectionCard(
-          title: 'Bitácora de seguridad',
-          subtitle: 'Registro cronológico de eventos',
-          icon: Icons.history_toggle_off_rounded,
-          trailing: FilledButton.icon(
-            onPressed: () => ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('Nueva alerta registrada (demostración)'))),
-            icon: const Icon(Icons.add_alert_rounded, size: 18),
-            label: const Text('Registrar alerta'),
-          ),
-          child: Column(
-            children: MockData.alerts.map((a) => _AlertTile(alert: a)).toList(),
-          ),
-        ),
-      ],
+            // Bitácora
+            SectionCard(
+              title: 'Bitácora de seguridad',
+              subtitle: 'Registro cronológico de eventos',
+              icon: Icons.history_toggle_off_rounded,
+              trailing: FilledButton.icon(
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Usa el panel administrativo para registrar alertas'))),
+                icon: const Icon(Icons.add_alert_rounded, size: 18),
+                label: const Text('Registrar alerta'),
+              ),
+              child: Column(
+                children: alertas.map((a) => _AlertTile(alert: a)).toList(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -106,8 +130,11 @@ class _AlertTile extends StatelessWidget {
                       const Text('Atendida', style: TextStyle(fontSize: 11.5, color: AppColors.success, fontWeight: FontWeight.w600))
                     else
                       OutlinedButton(
-                        onPressed: () => ScaffoldMessenger.of(context)
-                            .showSnackBar(SnackBar(content: Text('Marcando "${alert.titulo}" como atendida'))),
+                        onPressed: () {
+                          AdminStore.instance.marcarAtendida(alert.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('«${alert.titulo}» marcada como atendida')));
+                        },
                         style: OutlinedButton.styleFrom(
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(horizontal: 14),

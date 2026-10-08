@@ -22,6 +22,7 @@ extension AlertLevelX on AlertLevel {
 /// Evento registrado en la bitácora de seguridad.
 class SafetyAlert {
   const SafetyAlert({
+    this.id = '',
     required this.hora,
     required this.titulo,
     required this.detalle,
@@ -29,6 +30,10 @@ class SafetyAlert {
     required this.ruta,
     required this.respondido,
   });
+
+  /// Identificador estable para editar/eliminar desde el panel administrativo.
+  /// La semilla lo deja vacío y el [AdminStore] lo asigna al cargar.
+  final String id;
 
   final String hora;
   final String titulo;

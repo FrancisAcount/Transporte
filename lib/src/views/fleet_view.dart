@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../data/admin_store.dart';
 import '../models/bus.dart';
 import '../theme/app_colors.dart';
 import '../widgets/common_widgets.dart';
@@ -12,52 +12,89 @@ class FleetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        // Resumen de estados de la flota
-        const MetricGrid(
+    return ListenableBuilder(
+      listenable: AdminStore.instance,
+      builder: (context, _) {
+        final buses = AdminStore.instance.buses;
+        int porEstado(BusStatus s) =>
+            buses.where((b) => b.estado == s).length;
+        return ListView(
+          padding: const EdgeInsets.all(24),
           children: [
-            StatCard(label: 'En ruta', value: '2', icon: Icons.directions_bus_filled_rounded, color: AppColors.success),
-            StatCard(label: 'En garaje', value: '2', icon: Icons.garage_outlined, color: AppColors.info),
-            StatCard(label: 'En mantenimiento', value: '1', icon: Icons.build_circle_outlined, color: AppColors.warning),
-            StatCard(label: 'Fuera de servicio', value: '1', icon: Icons.car_crash_outlined, color: AppColors.guindo),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        // Tabla de la flota
-        SectionCard(
-          title: 'Inventario de flota',
-          subtitle: '${MockData.buses.length} vehículos registrados',
-          icon: Icons.directions_bus_filled_rounded,
-          trailing: FilledButton.icon(
-            onPressed: () => _notify(context, 'Registro de vehículo'),
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text('Nuevo bus'),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTableSim(
-              headers: const ['Placa', 'Marca y modelo', 'Capacidad', 'Conductor', 'Ruta', 'Kilometraje', 'Mantenimiento', 'Estado'],
-              rows: MockData.buses.map(_buildRow).toList(),
+            // Resumen de estados de la flota (conteos vivos del panel).
+            MetricGrid(
+              children: [
+                StatCard(
+                  label: 'En ruta',
+                  value: '${porEstado(BusStatus.enRuta)}',
+                  icon: Icons.directions_bus_filled_rounded,
+                  color: AppColors.success,
+                ),
+                StatCard(
+                  label: 'En garaje',
+                  value: '${porEstado(BusStatus.enGaraje)}',
+                  icon: Icons.garage_outlined,
+                  color: AppColors.info,
+                ),
+                StatCard(
+                  label: 'En mantenimiento',
+                  value: '${porEstado(BusStatus.mantenimiento)}',
+                  icon: Icons.build_circle_outlined,
+                  color: AppColors.warning,
+                ),
+                StatCard(
+                  label: 'Fuera de servicio',
+                  value: '${porEstado(BusStatus.fueraDeServicio)}',
+                  icon: Icons.car_crash_outlined,
+                  color: AppColors.guindo,
+                ),
+              ],
             ),
-          ),
-        ),
-        const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-        // Fichas de vehículo
-        SectionCard(
-          title: 'Fichas técnicas destacadas',
-          subtitle: 'Vehículos con intervención reciente',
-          icon: Icons.assignment_outlined,
-          // Fichas técnicas dimensionadas por contenido (sin alturas fijas).
-          child: AdaptiveGrid(
-            maxColumns: 3,
-            children: MockData.buses.take(3).map(_buildSpecCard).toList(),
-          ),
-        ),
-      ],
+            // Tabla de la flota
+            SectionCard(
+              title: 'Inventario de flota',
+              subtitle: '${buses.length} vehículos registrados',
+              icon: Icons.directions_bus_filled_rounded,
+              trailing: FilledButton.icon(
+                onPressed: () => _notify(context, 'Registro de vehículo'),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Nuevo bus'),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTableSim(
+                  headers: const [
+                    'Placa',
+                    'Marca y modelo',
+                    'Capacidad',
+                    'Conductor',
+                    'Ruta',
+                    'Kilometraje',
+                    'Mantenimiento',
+                    'Estado'
+                  ],
+                  rows: buses.map(_buildRow).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Fichas de vehículo
+            SectionCard(
+              title: 'Fichas técnicas destacadas',
+              subtitle: 'Vehículos con intervención reciente',
+              icon: Icons.assignment_outlined,
+              // Fichas técnicas dimensionadas por contenido (sin alturas fijas).
+              child: AdaptiveGrid(
+                maxColumns: 3,
+                children: buses.take(3).map(_buildSpecCard).toList(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
   /// Fila de la tabla de flota.

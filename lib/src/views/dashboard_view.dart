@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/admin_store.dart';
 import '../data/mock_data.dart';
 import '../models/safety_alert.dart';
 import '../theme/app_colors.dart';
@@ -7,14 +8,45 @@ import '../widgets/common_widgets.dart';
 import '../widgets/data_table.dart';
 
 /// 🏠 Apartado 1: métricas rápidas de flota, rutas y estudiantes.
-class DashboardView extends StatelessWidget {
+class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
 
   @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  // Estado del buscador global del administrador.
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
+    return ListenableBuilder(
+      listenable: AdminStore.instance,
+      builder: (context, _) => ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          // Buscador global: filtra por rutas, flota o estudiantes en tiempo real.
+        AppSearchBar(
+          hintText: 'Buscar rutas, autobuses, estudiantes o conductores...',
+          controller: _searchController,
+          onChanged: (v) => setState(() => _query = v),
+        ),
+        const SizedBox(height: 18),
+
+        // Retroalimentación del buscador: coincidencias sobre los datos reales.
+        if (_query.trim().isNotEmpty) ...[
+          _buildSearchResults(_query.trim().toLowerCase()),
+          const SizedBox(height: 18),
+        ],
+
         // Fila 1: métricas rápidas
         const MetricGrid(
           children: [
@@ -63,8 +95,67 @@ class DashboardView extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
+
+  /// Resumen de coincidencias del buscador global sobre rutas, flota,
+  /// estudiantes y conductores. Deja claro qué está filtrando el usuario.
+  Widget _buildSearchResults(String q) {
+    final rutas = MockData.routes.where((r) => '${r.codigo} ${r.nombre}'.toLowerCase().contains(q)).length;
+    final buses = MockData.buses.where((b) => '${b.placa} ${b.modelo}'.toLowerCase().contains(q)).length;
+    final estudiantes = MockData.students.where((s) => s.nombre.toLowerCase().contains(q)).length;
+    final conductores = MockData.drivers.where((d) => '${d.nombre} ${d.ruta}'.toLowerCase().contains(q)).length;
+    final total = rutas + buses + estudiantes + conductores;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.guindo.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.guindo.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.search_rounded, size: 18, color: AppColors.guindo),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  total == 0
+                      ? 'Sin resultados para "$q"'
+                      : '$total resultado${total == 1 ? '' : 's'} para "$q"',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.guindo),
+                ),
+              ),
+            ],
+          ),
+          if (total > 0) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (rutas > 0) _tag('$rutas ruta${rutas == 1 ? '' : 's'}'),
+                if (buses > 0) _tag('$buses autobus${buses == 1 ? '' : 'es'}'),
+                if (estudiantes > 0) _tag('$estudiantes estudiante${estudiantes == 1 ? '' : 's'}'),
+                if (conductores > 0) _tag('$conductores conductor${conductores == 1 ? '' : 'es'}'),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Etiqueta corta de una categoría con resultados.
+  Widget _tag(String label) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(color: AppColors.guindo.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(999)),
+        child: Text(label, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.guindo)),
+      );
 
   /// Tarjeta con el resumen de rutas del día.
   Widget _buildRoutesCard() {
