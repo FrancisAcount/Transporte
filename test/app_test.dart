@@ -23,6 +23,17 @@ Future<void> _entrarAlSistema(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Lanza la app, espera la coreografía de la intro (2.8 s) y entra al panel
+/// pulsando su botón «Entrar al panel».
+///
+/// [app] permite inyectar un `MaranataApp` con clave para recrear el árbol.
+Future<void> _arrancarApp(WidgetTester tester, {Widget? app}) async {
+  await tester.pumpWidget(app ?? const MaranataApp());
+  await tester.pumpAndSettle(); // termina la animación y aparece el botón
+  await tester.tap(find.widgetWithText(FilledButton, 'Entrar al panel'));
+  await tester.pumpAndSettle(); // fundido hacia HomeScreen
+}
+
 /// Desplaza la portada hasta dejar visible [finder] en pantalla.
 ///
 /// [scrollable] debe apuntar al `Scrollable` real: `scrollUntilVisible` no
@@ -60,7 +71,14 @@ void main() {
     expect(find.text('TRANSPORTE ESCOLAR'), findsOneWidget);
     expect(find.text('Preparando tu viaje…'), findsOneWidget);
 
-    // Al terminar la coreografía se entra al panel con fundido.
+    // Al terminar la coreografía NO se navega sola: aparece el botón de entrada.
+    await tester.pumpAndSettle();
+    expect(find.byType(IntroView), findsOneWidget);
+    expect(find.text('Listo para entrar'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Entrar al panel'), findsOneWidget);
+
+    // Solo el botón lleva al panel, con fundido.
+    await tester.tap(find.widgetWithText(FilledButton, 'Entrar al panel'));
     await tester.pumpAndSettle();
     expect(find.byType(IntroView), findsNothing);
     expect(find.text('Servicio de transporte escolar'), findsOneWidget);
@@ -92,8 +110,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // Módulo inicial: la portada pública de bienvenida.
     expect(find.text('Servicio de transporte escolar'), findsOneWidget);
@@ -130,8 +147,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // La portada premium se renderiza dentro del shell del panel, no aislada.
     expect(find.byType(WelcomeView), findsOneWidget);
@@ -161,8 +177,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
     expect(find.byType(WelcomeView), findsOneWidget);
 
     await _entrarAlSistema(tester);
@@ -182,8 +197,7 @@ void main() {
     // contaminar los recuentos (28 unidades) de los tests siguientes.
     addTearDown(AdminStore.instance.restaurarSemilla);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
     await _entrarAlSistema(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Conductores y Personal').first);
@@ -242,8 +256,7 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaranataApp(key: ValueKey(tamano)));
-      await tester.pumpAndSettle();
+      await _arrancarApp(tester, app: MaranataApp(key: ValueKey(tamano)));
       await _entrarAlSistema(tester);
       await tester.pumpAndSettle();
 
@@ -269,8 +282,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
     await _entrarAlSistema(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Registro de Estudiantes').first);
@@ -336,8 +348,7 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaranataApp(key: ValueKey(tamano)));
-      await tester.pumpAndSettle();
+      await _arrancarApp(tester, app: MaranataApp(key: ValueKey(tamano)));
       await _entrarAlSistema(tester);
       await tester.pumpAndSettle();
 
@@ -365,8 +376,7 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaranataApp(key: ValueKey(tamano)));
-      await tester.pumpAndSettle();
+      await _arrancarApp(tester, app: MaranataApp(key: ValueKey(tamano)));
 
       // Bloque 1 (header) y bloque 2 (hero) deben estar visibles sin scroll.
       expect(find.text('Servicio de transporte escolar'), findsOneWidget);
@@ -382,8 +392,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // Bloque 1: header + buscador compacto.
     expect(find.text('Colegio Maranata'), findsOneWidget);
@@ -430,8 +439,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // Las tarjetas de ruta están en el bloque 5: hay que llegar hasta ellas.
     // `.first` porque el texto se repite en la tabla de paraderos.
@@ -461,8 +469,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // El footer queda al final de la portada: hay que desplazarse hasta él.
     await _llevarA(
@@ -490,8 +497,7 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const MaranataApp());
-    await tester.pumpAndSettle();
+    await _arrancarApp(tester);
 
     // La primera tarjeta es la de «Viaja con tranquilidad».
     expect(find.text('Viaja con tranquilidad'), findsOneWidget);

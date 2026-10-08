@@ -14,7 +14,8 @@ import '../screens/home_screen.dart';
 /// 1. El distintivo entra con rebote suave y dos anillos de pulso.
 /// 2. «Maranata» y «TRANSPORTE ESCOLAR» aparecen con desplazamiento vertical.
 /// 3. Un bus cruza una carretera punteada mientras se llena la barra de progreso.
-/// 4. Al terminar —o al tocar la pantalla— se navega a [HomeScreen] con fundido.
+/// 4. Al terminar aparece el botón «Entrar al panel»; al pulsarlo —o al tocar
+///    la pantalla— se navega a [HomeScreen] con fundido.
 class IntroView extends StatefulWidget {
   const IntroView({super.key});
 
@@ -30,7 +31,7 @@ class _IntroViewState extends State<IntroView>
   late final AnimationController _control = AnimationController(
     vsync: this,
     duration: _duracion,
-  )..addStatusListener(_alCambiarEstado);
+  );
 
   /// Ventana [inicio, fin] del controlador con su curva.
   Animation<double> _curva(double inicio, double fin,
@@ -51,10 +52,13 @@ class _IntroViewState extends State<IntroView>
   late final Animation<double> _aRegla = _curva(0.45, 0.68);
   late final Animation<double> _aCarretera = _curva(0.50, 0.62);
   late final Animation<double> _aBus = _curva(0.50, 0.88, Curves.easeInOutSine);
-  late final Animation<double> _aPista = _curva(0.72, 0.88);
   late final Animation<double> _aProgreso = _curva(0.0, 0.95, Curves.linear);
+  /// Revelado del botón «Entrar al panel» en el tramo final (86 %–100 %).
+  late final Animation<double> _aBoton = _curva(0.86, 1.0);
+  /// Pista «o toca en cualquier parte» bajo el botón (92 %–100 %).
+  late final Animation<double> _aPista = _curva(0.92, 1.0);
 
-  /// Evita navegar dos veces (fin de animación + toque simultáneo).
+  /// Evita navegar dos veces si se pulsa el botón y la pantalla a la vez.
   bool _navego = false;
 
   @override
@@ -67,10 +71,6 @@ class _IntroViewState extends State<IntroView>
   void dispose() {
     _control.dispose();
     super.dispose();
-  }
-
-  void _alCambiarEstado(AnimationStatus estado) {
-    if (estado == AnimationStatus.completed) _entrar();
   }
 
   /// Reemplaza la intro por [HomeScreen] con un fundido de salida.
@@ -328,8 +328,11 @@ class _IntroViewState extends State<IntroView>
     );
   }
 
-  /// Barra de progreso y textos de espera / salto.
+  /// Barra de progreso, estado del viaje y botón de entrada a la app.
   Widget _progreso() {
+    // La coreografía ya terminó: entra el botón y cambia el texto de espera.
+    final listo =
+        _control.status == AnimationStatus.completed || _control.value >= 1.0;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -361,18 +364,47 @@ class _IntroViewState extends State<IntroView>
         ),
         const SizedBox(height: 14),
         Text(
-          'Preparando tu viaje…',
+          listo ? 'Listo para entrar' : 'Preparando tu viaje…',
           style: GoogleFonts.inter(
             fontSize: 12.5,
             letterSpacing: 1.4,
             color: Colors.white54,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 18),
+        // Botón principal: se revela al terminar la coreografía.
+        FadeTransition(
+          opacity: _aBoton,
+          child: Transform.translate(
+            offset: Offset(0, 14 * (1 - _aBoton.value)),
+            child: SizedBox(
+              width: 230,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.navyDeep,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  textStyle: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: _entrar,
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                label: const Text('Entrar al panel'),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
         Opacity(
           opacity: _aPista.value,
           child: Text(
-            'Toca para continuar',
+            'o toca en cualquier parte',
             style: GoogleFonts.inter(
               fontSize: 11,
               letterSpacing: 0.8,
