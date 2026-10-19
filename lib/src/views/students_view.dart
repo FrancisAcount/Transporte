@@ -35,12 +35,15 @@ class _StudentsViewState extends State<StudentsView> {
   List<DriverRecord> get _unidades => AdminStore.instance.conductores;
 
   /// Estilo de las microetiquetas en versalitas de las tarjetas.
-  static const TextStyle _etiqueta = TextStyle(
-    fontSize: 10,
-    fontWeight: FontWeight.w700,
-    color: AppColors.textMuted,
-    letterSpacing: 1,
-  );
+  static TextStyle _etiqueta(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+      letterSpacing: 1,
+    );
+  }
 
   @override
   void dispose() {
@@ -100,7 +103,7 @@ class _StudentsViewState extends State<StudentsView> {
             const SizedBox(height: 20),
             _encabezado(visibles.length),
             const SizedBox(height: 16),
-            if (visibles.isEmpty) _vacio() else _cuadricula(visibles),
+            if (visibles.isEmpty) _vacio(context) else _cuadricula(visibles),
           ],
         );
       },
@@ -108,40 +111,43 @@ class _StudentsViewState extends State<StudentsView> {
   }
 
   /// Título del módulo con el resumen de buses y alumnos.
-  Widget _encabezado(int unidades) => Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Unidades de transporte',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -0.3,
-                  ),
+  Widget _encabezado(int unidades) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Unidades de transporte',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  letterSpacing: -0.3,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_unidades.length} buses · ${AdminStore.instance.alumnos.length} alumnos matriculados',
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.textMuted,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${_unidades.length} buses · ${AdminStore.instance.alumnos.length} alumnos matriculados',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          StatusChip(
-            label: '$unidades unidades',
-            color: AppColors.navy,
-            icon: Icons.directions_bus_rounded,
-          ),
-        ],
-      );
+        ),
+        const SizedBox(width: 12),
+        StatusChip(
+          label: '$unidades unidades',
+          color: AppColors.navy,
+          icon: Icons.directions_bus_rounded,
+        ),
+      ],
+    );
+  }
 
   /// Cuadrícula responsive de tarjetas de bus (1 a 4 columnas).
   Widget _cuadricula(List<DriverRecord> unidades) => LayoutBuilder(
@@ -171,13 +177,14 @@ class _StudentsViewState extends State<StudentsView> {
 
   /// Tarjeta de una unidad: número de bus, placa, chófer y botón de acceso.
   Widget _tarjeta(DriverRecord unidad) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final placa = DriverData.placaDe(unidad.bus);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
         boxShadow: [
           BoxShadow(
             color: AppColors.navy.withValues(alpha: 0.04),
@@ -209,20 +216,20 @@ class _StudentsViewState extends State<StudentsView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'N.° DE BUS',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: _etiqueta,
+                      style: _etiqueta(context),
                     ),
                     Text(
                       unidad.bus,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+                        color: isDark ? Colors.white : AppColors.textPrimary,
                         letterSpacing: -0.2,
                       ),
                     ),
@@ -233,18 +240,18 @@ class _StudentsViewState extends State<StudentsView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.navy.withValues(alpha: 0.07),
+                  color: AppColors.navy.withValues(alpha: isDark ? 0.2 : 0.07),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.navy.withValues(alpha: 0.25),
+                    color: AppColors.navy.withValues(alpha: isDark ? 0.4 : 0.25),
                   ),
                 ),
                 child: Text(
                   placa,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.navy,
+                    color: isDark ? Colors.white : AppColors.navy,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -252,18 +259,18 @@ class _StudentsViewState extends State<StudentsView> {
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
           const SizedBox(height: 12),
-          const Text('CHOFER', style: _etiqueta),
+          Text('CHOFER', style: _etiqueta(context)),
           const SizedBox(height: 3),
           Text(
             unidad.nombre,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
           const Spacer(),
@@ -289,29 +296,31 @@ class _StudentsViewState extends State<StudentsView> {
   }
 
   /// Estado vacío cuando el buscador no encuentra ninguna unidad.
-  Widget _vacio() => Padding(
+  Widget _vacio(BuildContext context) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 36),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.search_off_rounded,
               size: 46,
-              color: AppColors.textMuted,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkTextMuted
+                  : AppColors.textMuted,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Sin resultados',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Prueba con otro chófer, placa o número de bus.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+              style: TextStyle(fontSize: 12.5, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textMuted),
             ),
             const SizedBox(height: 14),
             OutlinedButton.icon(

@@ -29,6 +29,7 @@ class WelcomeMetricsRoutes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final termino = consulta.trim().toLowerCase();
     final filtradas = termino.isEmpty
         ? routes
@@ -45,7 +46,7 @@ class WelcomeMetricsRoutes extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _FilaMetricas(metrics: metrics),
+          _FilaMetricas(metrics: metrics, isDark: isDark),
           const SizedBox(height: 16),
           if (filtradas.isEmpty)
             WelcomeEmptyState(
@@ -53,7 +54,7 @@ class WelcomeMetricsRoutes extends StatelessWidget {
               onLimpiar: onLimpiarConsulta,
             )
           else
-            _FilaRutas(routes: filtradas, onVerRuta: onVerRuta),
+            _FilaRutas(routes: filtradas, onVerRuta: onVerRuta, isDark: isDark),
         ],
       ),
     );
@@ -62,9 +63,10 @@ class WelcomeMetricsRoutes extends StatelessWidget {
 
 /// Fila de tres métricas con círculo de color e icono.
 class _FilaMetricas extends StatelessWidget {
-  const _FilaMetricas({required this.metrics});
+  const _FilaMetricas({required this.metrics, required this.isDark});
 
   final List<WelcomeMetric> metrics;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +84,7 @@ class _FilaMetricas extends StatelessWidget {
                 width: apilado
                     ? (constraints.maxWidth - 14) / 2
                     : (constraints.maxWidth - 28) / 3,
-                child: _TarjetaMetrica(metric: m, apilado: apilado),
+                child: _TarjetaMetrica(metric: m, apilado: apilado, isDark: isDark),
               ),
           ],
         );
@@ -93,10 +95,11 @@ class _FilaMetricas extends StatelessWidget {
 
 /// Métrica con círculo de color a la izquierda y etiqueta + valor a la derecha.
 class _TarjetaMetrica extends StatelessWidget {
-  const _TarjetaMetrica({required this.metric, required this.apilado});
+  const _TarjetaMetrica({required this.metric, required this.apilado, required this.isDark});
 
   final WelcomeMetric metric;
   final bool apilado;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +122,10 @@ class _TarjetaMetrica extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: apilado ? TextAlign.center : TextAlign.start,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w600,
-            color: AppColors.textSecondary,
+            color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 2),
@@ -131,11 +134,11 @@ class _TarjetaMetrica extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: apilado ? TextAlign.center : TextAlign.start,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 19,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.4,
-            color: AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimary,
           ),
         ),
       ],
@@ -161,10 +164,11 @@ class _TarjetaMetrica extends StatelessWidget {
 
 /// Fila de tarjetas verticales con una imagen frontal del bus por ruta.
 class _FilaRutas extends StatelessWidget {
-  const _FilaRutas({required this.routes, required this.onVerRuta});
+  const _FilaRutas({required this.routes, required this.onVerRuta, required this.isDark});
 
   final List<WelcomeRoute> routes;
   final void Function(WelcomeRoute ruta) onVerRuta;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +189,7 @@ class _FilaRutas extends StatelessWidget {
             for (final ruta in routes)
               SizedBox(
                 width: ancho,
-                child: _TarjetaRuta(route: ruta, onVerRuta: onVerRuta),
+                child: _TarjetaRuta(route: ruta, onVerRuta: onVerRuta, isDark: isDark),
               ),
           ],
         );
@@ -196,18 +200,19 @@ class _FilaRutas extends StatelessWidget {
 
 /// Tarjeta vertical de ruta: imagen frontal, distintivo de color y botón.
 class _TarjetaRuta extends StatelessWidget {
-  const _TarjetaRuta({required this.route, required this.onVerRuta});
+  const _TarjetaRuta({required this.route, required this.onVerRuta, required this.isDark});
 
   final WelcomeRoute route;
   final void Function(WelcomeRoute ruta) onVerRuta;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -237,35 +242,35 @@ class _TarjetaRuta extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   route.summary,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     height: 1.45,
-                    color: AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 // Detalles de horario y paraderos principales.
                 Row(
                   children: [
-                    const Icon(Icons.schedule_rounded, size: 13, color: AppColors.textMuted),
+                    Icon(Icons.schedule_rounded, size: 13, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(
                       route.schedule,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textMuted,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Icon(Icons.location_on_outlined, size: 13, color: AppColors.textMuted),
+                    Icon(Icons.location_on_outlined, size: 13, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(
                       '${route.stops} paraderos',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textMuted,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                       ),
                     ),
                   ],

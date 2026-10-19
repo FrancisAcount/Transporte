@@ -767,9 +767,9 @@ class _RegisterDriverDialogState extends State<_RegisterDriverDialog> {
   Widget _barraAcciones() => Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(24, 14, 24, 18),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          border: Border(top: BorderSide(color: AppColors.border)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkBg : AppColors.background,
+          border: Border(top: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkBorder : AppColors.border)),
         ),
         child: Row(
           children: [
@@ -777,8 +777,8 @@ class _RegisterDriverDialogState extends State<_RegisterDriverDialog> {
               child: OutlinedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textSecondary,
-                  side: const BorderSide(color: AppColors.border),
+                  foregroundColor: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textSecondary,
+                  side: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkBorder : AppColors.border),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
@@ -804,19 +804,20 @@ class _RegisterDriverDialogState extends State<_RegisterDriverDialog> {
 
   /// Campo de formulario con validación.
   Widget _campo(TextEditingController ctrl, String label, IconData icon, {TextInputType? teclado}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextFormField(
       controller: ctrl,
       keyboardType: teclado,
       textInputAction: TextInputAction.next,
-      style: const TextStyle(fontSize: 13.5),
+      style: TextStyle(fontSize: 13.5, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(fontSize: 13),
-        prefixIcon: Icon(icon, size: 18, color: AppColors.textSecondary),
+        labelStyle: TextStyle(fontSize: 13, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+        prefixIcon: Icon(icon, size: 18, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border)),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.guindo, width: 1.4)),
       ),
       validator: (v) => (v == null || v.trim().isEmpty) ? 'Este campo es obligatorio' : null,

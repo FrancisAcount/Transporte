@@ -14,28 +14,29 @@ class WelcomeGallerySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return WelcomeSection(
       espaciadoSuperior: 30,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final dosColumnas = constraints.maxWidth >= 860;
-          const galeria = _GaleriaFlota();
-          const objetivos = _Objetivos();
+          final galeria = _GaleriaFlota(isDark: isDark);
+          final objetivos = _Objetivos(isDark: isDark);
 
           if (!dosColumnas) {
-            return const Column(
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [galeria, SizedBox(height: 18), objetivos],
+              children: [galeria, const SizedBox(height: 18), objetivos],
             );
           }
 
           // Sin `IntrinsicHeight`: la galería usa un `LayoutBuilder` interno y
           // las dimensiones intrínsecas no son compatibles con él.
-          return const Row(
+          return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 3, child: galeria),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(flex: 2, child: objetivos),
             ],
           );
@@ -47,7 +48,9 @@ class WelcomeGallerySection extends StatelessWidget {
 
 /// Tres imágenes consecutivas de los vehículos escolares con su pie de foto.
 class _GaleriaFlota extends StatelessWidget {
-  const _GaleriaFlota();
+  const _GaleriaFlota({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +81,10 @@ class _GaleriaFlota extends StatelessWidget {
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -98,7 +101,9 @@ class _GaleriaFlota extends StatelessWidget {
 
 /// Lista de objetivos del proyecto con icono y descripción.
 class _Objetivos extends StatelessWidget {
-  const _Objetivos();
+  const _Objetivos({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +119,7 @@ class _Objetivos extends StatelessWidget {
             children: [
               for (var i = 0; i < kWelcomeObjectives.length; i++) ...[
                 if (i > 0) const SizedBox(height: 14),
-                _FilaObjetivo(objective: kWelcomeObjectives[i]),
+                _FilaObjetivo(objective: kWelcomeObjectives[i], isDark: isDark),
               ],
             ],
           ),
@@ -126,9 +131,10 @@ class _Objetivos extends StatelessWidget {
 
 /// Objetivo individual: icono en cuadro + título y descripción.
 class _FilaObjetivo extends StatelessWidget {
-  const _FilaObjetivo({required this.objective});
+  const _FilaObjetivo({required this.objective, required this.isDark});
 
   final WelcomeObjective objective;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +145,11 @@ class _FilaObjetivo extends StatelessWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: AppColors.navy.withValues(alpha: 0.10),
+            color: AppColors.navy.withValues(alpha: isDark ? 0.28 : 0.10),
             borderRadius: BorderRadius.circular(9),
           ),
           alignment: Alignment.center,
-          child: Icon(objective.icon, size: 17, color: AppColors.navy),
+          child: Icon(objective.icon, size: 17, color: isDark ? const Color(0xFF93C5FD) : AppColors.navy),
         ),
         const SizedBox(width: 11),
         Expanded(
@@ -153,19 +159,19 @@ class _FilaObjetivo extends StatelessWidget {
             children: [
               Text(
                 objective.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 objective.text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   height: 1.4,
-                  color: AppColors.textSecondary,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 ),
               ),
             ],

@@ -20,13 +20,14 @@ class WelcomeServices extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return WelcomeSection(
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Por debajo de 980 px las tarjetas laterales bajan bajo la azul.
           final apilado = constraints.maxWidth < WelcomeBreakpoints.mediano;
-          final tarjetaAzul = _TarjetaAzul(onVerRutas: onVerRutas, onSolicitar: onSolicitar);
-          final laterales = _TarjetasLaterales(onVerRutas: onVerRutas, onSolicitar: onSolicitar);
+          final tarjetaAzul = _TarjetaAzul(onVerRutas: onVerRutas, onSolicitar: onSolicitar, isDark: isDark);
+          final laterales = _TarjetasLaterales(onVerRutas: onVerRutas, onSolicitar: onSolicitar, isDark: isDark);
 
           if (apilado) {
             return Column(
@@ -51,10 +52,11 @@ class WelcomeServices extends StatelessWidget {
 
 /// Tarjeta institucional azul (#1E3A8A) con la imagen del bus en carretera.
 class _TarjetaAzul extends StatelessWidget {
-  const _TarjetaAzul({required this.onVerRutas, required this.onSolicitar});
+  const _TarjetaAzul({required this.onVerRutas, required this.onSolicitar, required this.isDark});
 
   final VoidCallback onVerRutas;
   final VoidCallback onSolicitar;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +74,14 @@ class _TarjetaAzul extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const WelcomeBadge(
+          WelcomeBadge(
             texto: 'Seguro y puntual',
             icon: Icons.verified_rounded,
             color: Colors.white,
             compacto: true,
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Tu colegio, a un viaje seguro de distancia',
             style: TextStyle(
               fontSize: 22,
@@ -141,14 +143,15 @@ class _TarjetaAzul extends StatelessWidget {
 
 /// Columna derecha: «Rutas» y «Turnos», una sobre otra.
 class _TarjetasLaterales extends StatelessWidget {
-  const _TarjetasLaterales({required this.onVerRutas, required this.onSolicitar});
+  const _TarjetasLaterales({required this.onVerRutas, required this.onSolicitar, required this.isDark});
 
   final VoidCallback onVerRutas;
   final VoidCallback onSolicitar;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -159,6 +162,7 @@ class _TarjetasLaterales extends StatelessWidget {
           icono: Icons.location_on_rounded,
           colorIcono: AppColors.crimson,
           tintIcono: AppColors.rosadoLight,
+          isDark: isDark,
         ),
         SizedBox(height: 14),
         _TarjetaDato(
@@ -167,6 +171,7 @@ class _TarjetasLaterales extends StatelessWidget {
           icono: Icons.groups_rounded,
           colorIcono: AppColors.rosado,
           tintIcono: AppColors.rosadoLight,
+          isDark: isDark,
         ),
       ],
     );
@@ -185,6 +190,7 @@ class _TarjetaDato extends StatelessWidget {
     required this.colorIcono,
     required this.tintIcono,
     this.sufijo,
+    required this.isDark,
   });
 
   final String etiqueta;
@@ -193,6 +199,7 @@ class _TarjetaDato extends StatelessWidget {
   final IconData icono;
   final Color colorIcono;
   final Color tintIcono;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -209,10 +216,10 @@ class _TarjetaDato extends StatelessWidget {
                   etiqueta,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -221,11 +228,11 @@ class _TarjetaDato extends StatelessWidget {
                     valor,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.3,
-                      color: AppColors.textPrimary,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                     ),
                   )
                 else
@@ -235,12 +242,12 @@ class _TarjetaDato extends StatelessWidget {
                     children: [
                       Text(
                         valor,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -1,
                           height: 1,
-                          color: AppColors.textPrimary,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -249,10 +256,10 @@ class _TarjetaDato extends StatelessWidget {
                           sufijo!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                            color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
                           ),
                         ),
                       ),

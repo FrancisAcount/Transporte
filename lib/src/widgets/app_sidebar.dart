@@ -15,22 +15,23 @@ class AppSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: collapsed ? 76 : 264,
-      color: AppColors.sidebarBg,
+      color: isDark ? AppColors.darkSidebarBg : AppColors.sidebarBg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildBrand(),
-          Expanded(child: _buildMenu()),
-          _buildFooter(),
+          _buildBrand(isDark: isDark),
+          Expanded(child: _buildMenu(isDark: isDark)),
+          _buildFooter(isDark: isDark),
         ],
       ),
     );
   }
 
   /// Logotipo + nombre de la institución.
-  Widget _buildBrand() {
+  Widget _buildBrand({required bool isDark}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 22, 18, 20),
       child: Row(
@@ -43,13 +44,19 @@ class AppSidebar extends StatelessWidget {
           ),
           if (!collapsed) ...[
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Maranata', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                   SizedBox(height: 2),
-                  Text('Transporte Escolar', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5)),
+                  Text(
+                    'Transporte Escolar',
+                    style: TextStyle(
+                      color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8),
+                      fontSize: 11.5,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -58,8 +65,7 @@ class AppSidebar extends StatelessWidget {
       ),
     );
   }
-  /// Lista navegable de los 7 apartados.
-  Widget _buildMenu() {
+  Widget _buildMenu({required bool isDark}) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: AppMenu.items.length,
@@ -79,7 +85,11 @@ class AppSidebar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                   children: [
-                    Icon(item.icon, size: 21, color: isSelected ? Colors.white : const Color(0xFFCBD5E1)),
+                    Icon(
+                      item.icon,
+                      size: 21,
+                      color: isSelected ? Colors.white : (isDark ? AppColors.darkTextSecondary : const Color(0xFFCBD5E1)),
+                    ),
                     if (!collapsed) ...[
                       const SizedBox(width: 13),
                       Expanded(
@@ -88,7 +98,9 @@ class AppSidebar extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? Colors.white : const Color(0xFFE2E8F0),
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark ? AppColors.darkTextSecondary : const Color(0xFFE2E8F0)),
                           ),
                         ),
                       ),
@@ -105,10 +117,14 @@ class AppSidebar extends StatelessWidget {
   }
 
   /// Pie de menú con usuario activo.
-  Widget _buildFooter() {
+  Widget _buildFooter({required bool isDark}) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFF1E293B)))),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: isDark ? AppColors.darkBorder : const Color(0xFF1E293B)),
+        ),
+      ),
       child: Row(
         children: [
           const CircleAvatar(
@@ -118,12 +134,12 @@ class AppSidebar extends StatelessWidget {
           ),
           if (!collapsed) ...[
             const SizedBox(width: 10),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Coordinador', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-                  Text('Administrador', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                  Text('Administrador', style: TextStyle(color: isDark ? AppColors.darkTextMuted : const Color(0xFF94A3B8), fontSize: 11)),
                 ],
               ),
             ),
@@ -133,3 +149,4 @@ class AppSidebar extends StatelessWidget {
     );
   }
 }
+

@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const AlertsView(),
         const GalleryView(),
         const SettingsView(),
-        const DriverModeView(),
+        DriverModeView(),
       ];
 
   void _selectModule(int index) {
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // escritorio / drawer en móvil) exactamente igual que los demás apartados.
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       // Drawer para móvil (web y escritorio usan el sidebar fijo).
       drawer: isMobile
           ? Drawer(
@@ -145,8 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Cabecera: botón de menú (móvil), título del módulo y acciones.
   Widget _buildHeader(MenuItem item) {
     final isMobile = MediaQuery.sizeOf(context).width < 900;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      color: AppColors.surface,
+      color: isDark ? AppColors.darkBg : AppColors.surface,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(
         children: [
@@ -154,14 +155,14 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               tooltip: 'Abrir menú',
               icon: const Icon(Icons.menu_rounded),
-              color: AppColors.sidebarBg,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.sidebarBg,
               onPressed: () => _scaffoldKey.currentState?.openDrawer(),
             )
           else
             IconButton(
               tooltip: _sidebarCollapsed ? 'Expandir menú' : 'Contraer menú',
               icon: Icon(_sidebarCollapsed ? Icons.chevron_right_rounded : Icons.chevron_left_rounded),
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
               onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
             ),
           const SizedBox(width: 8),
@@ -171,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(item.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
-                Text(item.subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                Text(item.subtitle, style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
               ],
             ),
           ),
@@ -179,7 +180,10 @@ class _HomeScreenState extends State<HomeScreen> {
           if (!isMobile)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurface : AppColors.background,
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: const Row(
                 children: [
                   Icon(Icons.calendar_today_rounded, size: 15, color: AppColors.textSecondary),
@@ -193,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_none_rounded),
-                color: AppColors.textSecondary,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 onPressed: () => ScaffoldMessenger.of(context)
                     .showSnackBar(const SnackBar(content: Text('Notificaciones simuladas'))),
               ),

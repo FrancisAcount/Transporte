@@ -12,6 +12,7 @@ class FleetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListenableBuilder(
       listenable: AdminStore.instance,
       builder: (context, _) {
@@ -89,7 +90,7 @@ class FleetView extends StatelessWidget {
               // Fichas técnicas dimensionadas por contenido (sin alturas fijas).
               child: AdaptiveGrid(
                 maxColumns: 3,
-                children: buses.take(3).map(_buildSpecCard).toList(),
+                children: buses.take(3).map((b) => _buildSpecCard(b, isDark: isDark)).toList(),
               ),
             ),
           ],
@@ -117,7 +118,7 @@ class FleetView extends StatelessWidget {
       ];
 
   /// Ficha técnica de un vehículo.
-  Widget _buildSpecCard(Bus b) {
+  Widget _buildSpecCard(Bus b, {required bool isDark}) {
     final color = busStatusColor(b.estado);
     return Card(
       child: Padding(
@@ -142,7 +143,7 @@ class FleetView extends StatelessWidget {
                         '${b.marca} ${b.modelo}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                        style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
                       ),
                     ],
                   ),
@@ -150,10 +151,10 @@ class FleetView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            _specLine('Capacidad', '${b.capacidad} pasajeros'),
-            _specLine('Kilometraje', '${formatThousands(b.kilometraje)} km'),
-            _specLine('Próximo mantenimiento', b.proximoMantenimiento),
-            _specLine('Estado', b.estado.label),
+            _specLine('Capacidad', '${b.capacidad} pasajeros', isDark: isDark),
+            _specLine('Kilometraje', '${formatThousands(b.kilometraje)} km', isDark: isDark),
+            _specLine('Próximo mantenimiento', b.proximoMantenimiento, isDark: isDark),
+            _specLine('Estado', b.estado.label, isDark: isDark),
           ],
         ),
       ),
@@ -161,12 +162,12 @@ class FleetView extends StatelessWidget {
   }
 
   /// Línea clave: valor dentro de la ficha técnica.
-  Widget _specLine(String label, String value) => Padding(
+  Widget _specLine(String label, String value, {required bool isDark}) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textMuted))),
-            Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            Expanded(child: Text(label, style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted))),
+            Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? Colors.white : AppColors.textPrimary)),
           ],
         ),
       );

@@ -23,10 +23,11 @@ class WelcomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBg : AppColors.surface,
+        border: Border(bottom: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       child: Center(
@@ -38,7 +39,7 @@ class WelcomeHeader extends StatelessWidget {
               // El ancho necesario para mantener título + buscador + acciones.
               final unaFila = constraints.maxWidth >= 940;
 
-              const titulo = Column(
+              final titulo = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -48,7 +49,7 @@ class WelcomeHeader extends StatelessWidget {
                       fontSize: 11,
                       letterSpacing: 0.6,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textMuted,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                     ),
                   ),
                   SizedBox(height: 1),
@@ -58,7 +59,7 @@ class WelcomeHeader extends StatelessWidget {
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.4,
-                      color: AppColors.navy,
+                      color: isDark ? Colors.white : AppColors.navy,
                     ),
                   ),
                 ],
@@ -81,8 +82,8 @@ class WelcomeHeader extends StatelessWidget {
                   icon: const Icon(Icons.login_rounded, size: 16),
                   label: compacto ? const SizedBox.shrink() : const Text('Iniciar Sesión'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.navy,
-                    side: const BorderSide(color: AppColors.border),
+                    foregroundColor: isDark ? Colors.white : AppColors.navy,
+                    side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
                     padding: EdgeInsets.symmetric(
                       horizontal: compacto ? 13 : 14,
                       vertical: 13,
@@ -112,7 +113,7 @@ class WelcomeHeader extends StatelessWidget {
                 // runtime (el buscador es controlado).
                 return Row(
                   children: [
-                    const Expanded(child: titulo),
+                    Expanded(child: titulo),
                     const SizedBox(width: 16),
                     SizedBox(width: 300, child: buscador),
                     const SizedBox(width: 10),
@@ -158,6 +159,7 @@ class _BuscadorCompacto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SizedBox(
       height: 44,
       child: TextField(
@@ -165,10 +167,10 @@ class _BuscadorCompacto extends StatelessWidget {
         onChanged: onChanged,
         onSubmitted: (_) => onVerRutas(),
         textInputAction: TextInputAction.search,
-        style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary),
+        style: TextStyle(fontSize: 13.5, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
         decoration: InputDecoration(
           hintText: 'Buscar ruta, paradero...',
-          hintStyle: const TextStyle(fontSize: 13, color: AppColors.textMuted),
+          hintStyle: TextStyle(fontSize: 13, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
           suffixIcon: Padding(
             padding: const EdgeInsets.all(5),
             child: Material(
@@ -187,20 +189,20 @@ class _BuscadorCompacto extends StatelessWidget {
           ),
           suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 34),
           filled: true,
-          fillColor: AppColors.background,
+          fillColor: isDark ? AppColors.darkInputFill : AppColors.background,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.navy, width: 1.4),
+            borderSide: BorderSide(color: AppColors.guindo, width: 1.4),
           ),
         ),
       ),

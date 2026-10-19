@@ -49,25 +49,26 @@ class WelcomeCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
-    this.color = AppColors.surface,
+    this.color,
     this.borderRadius = 16,
-    this.borde = AppColors.border,
+    this.borde,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  final Color? color;
   final double borderRadius;
-  final Color borde;
+  final Color? borde;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: color,
+        color: color ?? (isDark ? AppColors.darkSurface : AppColors.surface),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: borde),
+        border: Border.all(color: borde ?? (isDark ? AppColors.darkBorder : AppColors.border)),
       ),
       child: child,
     );
@@ -93,28 +94,29 @@ class WelcomeSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: centrado ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         if (eyebrow != null) ...[
           Text(
             eyebrow!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 2),
         ],
         Text(
           titulo,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 19,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.3,
-            color: AppColors.textPrimary,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           ),
         ),
         if (subtitulo != null) ...[
@@ -122,7 +124,11 @@ class WelcomeSectionTitle extends StatelessWidget {
           Text(
             subtitulo!,
             textAlign: centrado ? TextAlign.center : TextAlign.start,
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.45),
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              height: 1.45,
+            ),
           ),
         ],
       ],
@@ -222,13 +228,14 @@ class WelcomeEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: isDark ? AppColors.darkSurface : AppColors.background,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
       ),
       child: Column(
         children: [
@@ -237,7 +244,7 @@ class WelcomeEmptyState extends StatelessWidget {
           Text(
             texto,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary),
           ),
           if (onLimpiar != null) ...[
             const SizedBox(height: 10),

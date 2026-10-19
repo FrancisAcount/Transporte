@@ -44,8 +44,9 @@ class _WelcomeBenefitsCarouselState extends State<WelcomeBenefitsCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (widget.items.isEmpty) {
-      return const WelcomeEmptyState(texto: 'Beneficios no disponibles por ahora.');
+      return WelcomeEmptyState(texto: 'Beneficios no disponibles por ahora.');
     }
 
     return WelcomeSection(
@@ -57,6 +58,7 @@ class _WelcomeBenefitsCarouselState extends State<WelcomeBenefitsCarousel> {
                 icono: Icons.chevron_left_rounded,
                 tooltip: 'Beneficio anterior',
                 onPressed: _pagina > 0 ? () => _irA(_pagina - 1) : null,
+                isDark: isDark,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -68,7 +70,7 @@ class _WelcomeBenefitsCarouselState extends State<WelcomeBenefitsCarousel> {
                     onPageChanged: (i) => setState(() => _pagina = i),
                     itemBuilder: (context, i) => Padding(
                       padding: const EdgeInsets.only(right: 10),
-                      child: _TarjetaBeneficio(item: widget.items[i]),
+                      child: _TarjetaBeneficio(item: widget.items[i], isDark: isDark),
                     ),
                   ),
                 ),
@@ -78,6 +80,7 @@ class _WelcomeBenefitsCarouselState extends State<WelcomeBenefitsCarousel> {
                 icono: Icons.chevron_right_rounded,
                 tooltip: 'Beneficio siguiente',
                 onPressed: _pagina < widget.items.length - 1 ? () => _irA(_pagina + 1) : null,
+                isDark: isDark,
               ),
             ],
           ),
@@ -93,7 +96,7 @@ class _WelcomeBenefitsCarouselState extends State<WelcomeBenefitsCarousel> {
                   height: 6,
                   width: i == _pagina ? 18 : 6,
                   decoration: BoxDecoration(
-                    color: i == _pagina ? AppColors.crimson : AppColors.border,
+                    color: i == _pagina ? AppColors.crimson : (isDark ? AppColors.darkBorder : AppColors.border),
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -111,19 +114,21 @@ class _FlechaCarousel extends StatelessWidget {
     required this.icono,
     required this.tooltip,
     required this.onPressed,
+    required this.isDark,
   });
 
   final IconData icono;
   final String tooltip;
   final VoidCallback? onPressed;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: AppColors.surface,
-        shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        shape: CircleBorder(side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border)),
         child: InkWell(
           onTap: onPressed,
           customBorder: const CircleBorder(),
@@ -133,7 +138,7 @@ class _FlechaCarousel extends StatelessWidget {
             child: Icon(
               icono,
               size: 22,
-              color: onPressed == null ? AppColors.textMuted : AppColors.navy,
+              color: onPressed == null ? (isDark ? AppColors.darkTextMuted : AppColors.textMuted) : (isDark ? Colors.white : AppColors.navy),
             ),
           ),
         ),
@@ -144,9 +149,10 @@ class _FlechaCarousel extends StatelessWidget {
 
 /// Tarjeta de beneficio: miniatura a la izquierda + titular y descripción.
 class _TarjetaBeneficio extends StatelessWidget {
-  const _TarjetaBeneficio({required this.item});
+  const _TarjetaBeneficio({required this.item, required this.isDark});
 
   final WelcomeBenefit item;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +177,11 @@ class _TarjetaBeneficio extends StatelessWidget {
                   item.tag,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
-                    color: AppColors.textMuted,
+                    color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -183,11 +189,11 @@ class _TarjetaBeneficio extends StatelessWidget {
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.3,
-                    color: AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -196,10 +202,10 @@ class _TarjetaBeneficio extends StatelessWidget {
                     item.text,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11.5,
                       height: 1.4,
-                      color: AppColors.textSecondary,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
                     ),
                   ),
                 ),

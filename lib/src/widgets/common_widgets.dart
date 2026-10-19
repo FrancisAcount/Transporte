@@ -24,7 +24,9 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
+      color: isDark ? AppColors.darkSurface : AppColors.surface,
       child: Padding(
         padding: padding,
         child: Column(
@@ -36,7 +38,7 @@ class SectionCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.guindo.withValues(alpha: 0.10),
+                      color: AppColors.guindo.withValues(alpha: isDark ? 0.25 : 0.10),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, size: 18, color: AppColors.guindo),
@@ -60,9 +62,9 @@ class SectionCard extends StatelessWidget {
                           child: Text(subtitle!,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textMuted)),
+                                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
                         ),
                     ],
                   ),
@@ -101,7 +103,9 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
+      color: isDark ? AppColors.darkSurface : AppColors.surface,
       // Padding reducido para que el contenido quepa en pantallas pequeñas.
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -111,7 +115,7 @@ class StatCard extends StatelessWidget {
               height: 40,
               width: 40,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
+                color: color.withValues(alpha: isDark ? 0.22 : 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 21),
@@ -130,7 +134,11 @@ class StatCard extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -138,7 +146,12 @@ class StatCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
-                      child: Text(value, style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                      child: Text(value,
+                          style: GoogleFonts.inter(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                          )),
                     ),
                   ),
                   if (caption != null)
@@ -147,7 +160,10 @@ class StatCard extends StatelessWidget {
                         caption!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                        ),
                       ),
                     ),
                 ],
@@ -283,20 +299,21 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextField(
       controller: controller,
       autofocus: autofocus,
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
-      style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary),
+      style: TextStyle(fontSize: 13.5, color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(fontSize: 13.5, color: AppColors.textMuted),
-        prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
+        hintStyle: TextStyle(fontSize: 13.5, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+        prefixIcon: Icon(Icons.search_rounded, size: 20, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
         suffixIcon: (controller?.text.isNotEmpty ?? false)
             ? IconButton(
                 icon: const Icon(Icons.close_rounded, size: 18),
-                color: AppColors.textMuted,
+                color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
                 tooltip: 'Limpiar búsqueda',
                 onPressed: () {
                   controller?.clear();
@@ -307,15 +324,15 @@ class AppSearchBar extends StatelessWidget {
             : null,
         isDense: true,
         filled: true,
-        fillColor: AppColors.background,
+        fillColor: isDark ? AppColors.darkInputFill : AppColors.background,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

@@ -66,4 +66,29 @@ class AppColors {
 
   /// Fondo muy suave para alternar filas de tablas.
   static const Color rowAlt = Color(0xFFFAFBFC);
+
+  // =========================================================================
+  // Paleta OSCURA (negroplomo / carbón — no negro puro).
+  // Se activa cuando AppSettings.instance.isDarkMode == true.
+  // =========================================================================
+  /// Fondo principal en modo oscuro: carbón suave (evita el "todo negro").
+  static const Color darkBg = Color(0xFF121926);
+  /// Superficie de tarjetas en modo oscuro: un tono más claro que el fondo.
+  static const Color darkSurface = Color(0xFF1B2430);
+  /// Fondo del sidebar en modo oscuro.
+  static const Color darkSidebarBg = Color(0xFF0B111A);
+  /// Ítem del sidebar bajo el cursor / activo en modo oscuro.
+  static const Color darkSidebarHover = Color(0xFF1E293B);
+  /// Bordes y divisores en modo oscuro.
+  static const Color darkBorder = Color(0xFF334155);
+  /// Texto principal en modo oscuro.
+  static const Color darkTextPrimary = Colors.white;
+  /// Texto secundario en modo oscuro.
+  static const Color darkTextSecondary = Color(0xFFCBD5E1);
+  /// Texto atenuado / placeholder en modo oscuro.
+  static const Color darkTextMuted = Color(0xFF94A3B8);
+  /// Fila alternada de tablas en modo oscuro.
+  static const Color darkRowAlt = Color(0xFF1E293B);
+  /// Fondo de campos de entrada en modo oscuro.
+  static const Color darkInputFill = Color(0xFF0F172A);
 }

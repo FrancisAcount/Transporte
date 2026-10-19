@@ -12,6 +12,7 @@ class DataTableSim extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     // Ancho mínimo para mantener proporciones legibles en pantallas grandes.
     // `IntrinsicWidth` acota el ancho en un scroll horizontal (si no, `stretch`
     // pediría un ancho infinito y el layout falla).
@@ -23,20 +24,20 @@ class DataTableSim extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                color: AppColors.sidebarBg,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSidebarBg : AppColors.sidebarBg,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Row(
                 children: headers
-                    .map((h) => Expanded(child: Text(h.toUpperCase(), style: const TextStyle(fontSize: 11, letterSpacing: 0.6, fontWeight: FontWeight.w700, color: AppColors.textOnDark))))
+                    .map((h) => Expanded(child: Text(h.toUpperCase(), style: TextStyle(fontSize: 11, letterSpacing: 0.6, fontWeight: FontWeight.w700, color: isDark ? AppColors.darkTextSecondary : AppColors.textOnDark))))
                     .toList(),
               ),
             ),
             for (int i = 0; i < rows.length; i++)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                color: i.isEven ? AppColors.surface : AppColors.rowAlt,
+                color: i.isEven ? (isDark ? AppColors.darkSurface : AppColors.surface) : (isDark ? AppColors.darkRowAlt : AppColors.rowAlt),
                 child: Row(
                   children: rows[i]
                       .map((cell) => Expanded(child: Align(alignment: Alignment.centerLeft, child: cell)))

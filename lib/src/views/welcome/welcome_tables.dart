@@ -65,6 +65,7 @@ class _SalidasManana extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -78,18 +79,18 @@ class _SalidasManana extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.rosadoLight,
+                color: AppColors.rosadoLight.withValues(alpha: isDark ? 0.3 : 1.0),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Text(
+              child: Text(
                 '06:30 hs',
-                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.rosado),
+                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: isDark ? const Color(0xFFF9A8D4) : AppColors.rosado),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        const _TablaSalidas(),
+        _TablaSalidas(isDark: isDark),
       ],
     );
   }
@@ -97,7 +98,9 @@ class _SalidasManana extends StatelessWidget {
 
 /// Tabla simple de salidas: hora · ruta · bus asignado.
 class _TablaSalidas extends StatelessWidget {
-  const _TablaSalidas();
+  const _TablaSalidas({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +109,8 @@ class _TablaSalidas extends StatelessWidget {
       child: Column(
         children: [
           for (var i = 0; i < kWelcomeDepartures.length; i++) ...[
-            if (i > 0) const Divider(height: 1),
-            _FilaSalida(departure: kWelcomeDepartures[i]),
+            if (i > 0) Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
+            _FilaSalida(departure: kWelcomeDepartures[i], isDark: isDark),
           ],
         ],
       ),
@@ -117,9 +120,10 @@ class _TablaSalidas extends StatelessWidget {
 
 /// Fila de la tabla de salidas.
 class _FilaSalida extends StatelessWidget {
-  const _FilaSalida({required this.departure});
+  const _FilaSalida({required this.departure, required this.isDark});
 
   final WelcomeDeparture departure;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -131,15 +135,15 @@ class _FilaSalida extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: isDark ? AppColors.darkInputFill : AppColors.background,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               departure.time,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
-                color: AppColors.navy,
+                color: isDark ? Colors.white : AppColors.navy,
               ),
             ),
           ),
@@ -149,10 +153,10 @@ class _FilaSalida extends StatelessWidget {
               departure.route,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimary,
               ),
             ),
           ),
@@ -163,7 +167,7 @@ class _FilaSalida extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary),
             ),
           ),
         ],
@@ -177,6 +181,7 @@ class _UltimosAvisos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -189,11 +194,11 @@ class _UltimosAvisos extends StatelessWidget {
             children: [
               for (var i = 0; i < kWelcomeNotices.length; i++) ...[
                 if (i > 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
                   ),
-                _FilaAviso(notice: kWelcomeNotices[i]),
+                _FilaAviso(notice: kWelcomeNotices[i], isDark: isDark),
               ],
             ],
           ),
@@ -205,9 +210,10 @@ class _UltimosAvisos extends StatelessWidget {
 
 /// Fila de aviso: icono con tinte propio + título, texto y fecha.
 class _FilaAviso extends StatelessWidget {
-  const _FilaAviso({required this.notice});
+  const _FilaAviso({required this.notice, required this.isDark});
 
   final WelcomeNotice notice;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -229,23 +235,23 @@ class _FilaAviso extends StatelessWidget {
             children: [
               Text(
                 notice.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 notice.text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   height: 1.4,
-                  color: AppColors.textSecondary,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(notice.date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+              Text(notice.date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted)),
             ],
           ),
         ),
@@ -259,6 +265,7 @@ class _EstadoServicio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -272,7 +279,7 @@ class _EstadoServicio extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.greenLight,
+                color: AppColors.greenLight.withValues(alpha: isDark ? 0.3 : 1.0),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: const Row(
@@ -296,18 +303,18 @@ class _EstadoServicio extends StatelessWidget {
             children: [
               // Los tres totales separados por líneas verticales.
               for (var i = 0; i < kServiceTotals.length; i++) ...[
-                if (i > 0) Container(width: 1, height: 38, color: AppColors.border),
+                if (i > 0) Container(width: 1, height: 38, color: isDark ? AppColors.darkBorder : AppColors.border),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         kServiceTotals[i].value,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 21,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
-                          color: AppColors.navy,
+                          color: isDark ? Colors.white : AppColors.navy,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -315,10 +322,10 @@ class _EstadoServicio extends StatelessWidget {
                         kServiceTotals[i].label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
+                          color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -338,6 +345,7 @@ class _ParaderosPrincipales extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -349,8 +357,8 @@ class _ParaderosPrincipales extends StatelessWidget {
           child: Column(
             children: [
               for (var i = 0; i < kWelcomeStops.length; i++) ...[
-                if (i > 0) const Divider(height: 1),
-                _FilaParadero(stop: kWelcomeStops[i]),
+                if (i > 0) Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
+                _FilaParadero(stop: kWelcomeStops[i], isDark: isDark),
               ],
             ],
           ),
@@ -362,9 +370,10 @@ class _ParaderosPrincipales extends StatelessWidget {
 
 /// Fila de paradero: nombre, ruta, hora y estado activo.
 class _FilaParadero extends StatelessWidget {
-  const _FilaParadero({required this.stop});
+  const _FilaParadero({required this.stop, required this.isDark});
 
   final WelcomeStop stop;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -378,10 +387,10 @@ class _FilaParadero extends StatelessWidget {
               stop.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
               ),
             ),
           ),
@@ -391,7 +400,7 @@ class _FilaParadero extends StatelessWidget {
               stop.route,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 11.5, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
             ),
           ),
           Expanded(
@@ -400,10 +409,10 @@ class _FilaParadero extends StatelessWidget {
               stop.time,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.navy,
+                color: isDark ? Colors.white : AppColors.navy,
               ),
             ),
           ),
@@ -411,7 +420,7 @@ class _FilaParadero extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.greenLight,
+              color: AppColors.greenLight.withValues(alpha: isDark ? 0.3 : 1.0),
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(

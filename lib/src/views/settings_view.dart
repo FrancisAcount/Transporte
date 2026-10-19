@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/admin_store.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_settings.dart';
 import '../widgets/common_widgets.dart';
 import 'admin/admin_panel_view.dart';
 
@@ -19,6 +20,9 @@ class _SettingsViewState extends State<SettingsView> {
   bool _alertasCriticas = true;
   bool _modoMantenimiento = false;
   double _capacidadMinima = 50;
+
+  /// Referencia rápida a la configuración global.
+  final AppSettings _settings = AppSettings.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +61,12 @@ class _SettingsViewState extends State<SettingsView> {
                 child: Text('CM', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Coordinador Maranata', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                    Text('coordinacion@maranata.edu.ec', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                    Text('coordinacion@maranata.edu.ec', style: TextStyle(fontSize: 12, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textMuted)),
                   ],
                 ),
               ),
@@ -96,6 +100,60 @@ class _SettingsViewState extends State<SettingsView> {
           _switch('Alertas críticas', 'Avisar incidentemente de seguridad', _alertasCriticas, (v) => setState(() => _alertasCriticas = v)),
           const Divider(height: 24),
           _switch('Modo mantenimiento', 'Bloquear despacho de rutas', _modoMantenimiento, (v) => setState(() => _modoMantenimiento = v)),
+          const Divider(height: 24),
+
+          // —— NUEVO: Modo oscuro ——
+          _switch('Modo oscuro', 'Cambia la app y el mapa a colores oscuros', _settings.isDarkMode, (v) {
+            setState(() {});
+            _settings.isDarkMode = v;
+          }),
+          const Divider(height: 24),
+
+          // —— NUEVO: Alertas de proximidad ——
+          _switch(
+            'Alertas de proximidad',
+            'Notifica al padre cuando el bus se acerque a la parada',
+            _settings.proximityAlerts,
+            (v) {
+              setState(() {});
+              _settings.proximityAlerts = v;
+            },
+          ),
+          const Divider(height: 24),
+
+          // —— NUEVO: Frecuencia de actualización ——
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Frecuencia de actualización del mapa',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Cada cuántos segundos se refresca la posición del bus',
+                style: TextStyle(fontSize: 11.5, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textMuted),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: 150,
+                child: DropdownButton<int>(
+                  value: _settings.updateFrequencySeconds,
+                  items: const [
+                    DropdownMenuItem(value: 5, child: Text('5 segundos')),
+                    DropdownMenuItem(value: 10, child: Text('10 segundos')),
+                    DropdownMenuItem(value: 30, child: Text('30 segundos')),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() {});
+                      _settings.updateFrequencySeconds = v;
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
           const Divider(height: 24),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +295,7 @@ class _SettingsViewState extends State<SettingsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+        Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextSecondary : AppColors.textSecondary, fontWeight: FontWeight.w500)),
         const SizedBox(height: 6),
         TextFormField(initialValue: value, decoration: const InputDecoration(isDense: true)),
       ],
@@ -253,7 +311,7 @@ class _SettingsViewState extends State<SettingsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              Text(subtitle, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+              Text(subtitle, style: TextStyle(fontSize: 11.5, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textMuted)),
             ],
           ),
         ),
@@ -359,7 +417,7 @@ class _Info extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textMuted)),
+        Text(label, style: TextStyle(fontSize: 11.5, color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.textMuted)),
         const SizedBox(height: 2),
         Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
       ],

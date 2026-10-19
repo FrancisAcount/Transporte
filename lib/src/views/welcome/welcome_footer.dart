@@ -46,25 +46,26 @@ class _WelcomeFooterState extends State<WelcomeFooter> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBg : AppColors.surface,
+        border: Border(top: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border)),
       ),
       child: Column(
         children: [
-          _BarraSuscripcion(controlador: _correo, onEnviar: _enviar),
-          const Divider(height: 1),
+          _BarraSuscripcion(controlador: _correo, onEnviar: _enviar, isDark: isDark),
+          Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 26, 18, 0),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1180),
-                child: const _CuerpoFooter(),
+                child: _CuerpoFooter(isDark: isDark),
               ),
             ),
           ),
-          const _BarraLegal(),
+          _BarraLegal(isDark: isDark),
         ],
       ),
     );
@@ -73,17 +74,18 @@ class _WelcomeFooterState extends State<WelcomeFooter> {
 
 /// Barra azul de suscripción al boletín informativo.
 class _BarraSuscripcion extends StatelessWidget {
-  const _BarraSuscripcion({required this.controlador, required this.onEnviar});
+  const _BarraSuscripcion({required this.controlador, required this.onEnviar, required this.isDark});
 
   final TextEditingController controlador;
   final VoidCallback onEnviar;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-      color: AppColors.navy,
+      color: isDark ? AppColors.navyDeep : AppColors.navy,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1180),
@@ -201,7 +203,9 @@ class _BarraSuscripcion extends StatelessWidget {
 ///
 /// 1) Logotipo y descripción · 2) Navegación · 3) Contacto · 4) Redes sociales.
 class _CuerpoFooter extends StatelessWidget {
-  const _CuerpoFooter();
+  const _CuerpoFooter({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -221,9 +225,9 @@ class _CuerpoFooter extends StatelessWidget {
             children: [
               for (var i = 0; i < columnas.length; i++) ...[
                 if (i > 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    child: Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: Divider(height: 1, color: isDark ? AppColors.darkBorder : AppColors.border),
                   ),
                 columnas[i],
               ],
@@ -255,6 +259,7 @@ class _ColumnaMarca extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -265,31 +270,31 @@ class _ColumnaMarca extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.navy,
+                color: isDark ? AppColors.navyDeep : AppColors.navy,
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
               child: const Icon(Icons.directions_bus_filled_rounded, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 11),
-            const Flexible(
+            Flexible(
               child: Text(
                 'Transporte Escolar Maranata',
                 style: TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'Servicio de buses escolar con seguridad y confianza. Brindamos un '
           'servicio de calidad con recorridos exclusivos hacia los centros educativos.',
-          style: TextStyle(fontSize: 12.5, height: 1.6, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12.5, height: 1.6, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
         ),
       ],
     );
@@ -367,17 +372,18 @@ class _ColumnaFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           titulo,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.2,
-            color: AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -403,7 +409,11 @@ class _LinkFooter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Text(
           texto,
-          style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+          style: TextStyle(
+            fontSize: 12.5,
+            color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+            height: 1.4,
+          ),
         ),
       ),
     );
@@ -419,19 +429,20 @@ class _DatoContacto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icono, size: 15, color: AppColors.textMuted),
+          Icon(icono, size: 15, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
           const SizedBox(width: 9),
           Expanded(
             child: Text(
               texto,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
-                color: AppColors.textSecondary,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
                 height: 1.45,
               ),
             ),
@@ -444,7 +455,9 @@ class _DatoContacto extends StatelessWidget {
 
 /// Barra inferior con copyright y enlaces legales.
 class _BarraLegal extends StatelessWidget {
-  const _BarraLegal();
+  const _BarraLegal({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -460,9 +473,9 @@ class _BarraLegal extends StatelessWidget {
             spacing: 12,
             runSpacing: 8,
             children: [
-              const Text(
+              Text(
                 '© 2026 Colegio Maranata · Todos los derechos reservados',
-                style: TextStyle(fontSize: 11.5, color: AppColors.textMuted),
+                style: TextStyle(fontSize: 11.5, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
               ),
               // `Wrap` para que los enlaces legales bajen de línea en pantallas
               // estrechas en lugar de desbordar.
@@ -479,7 +492,7 @@ class _BarraLegal extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Text(
                           legal,
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 11.5, color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
                         ),
                       ),
                     ),

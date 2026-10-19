@@ -78,8 +78,9 @@ class _WelcomeViewState extends State<WelcomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      color: AppColors.background,
+      color: isDark ? AppColors.darkBg : AppColors.background,
       // Un solo scroll vertical para toda la portada.
       child: SingleChildScrollView(
         padding: EdgeInsets.zero,

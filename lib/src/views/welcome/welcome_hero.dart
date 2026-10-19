@@ -16,6 +16,7 @@ class WelcomeHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return WelcomeSection(
       espaciadoSuperior: 20,
       child: LayoutBuilder(
@@ -34,15 +35,15 @@ class WelcomeHero extends StatelessWidget {
           return Container(
             padding: EdgeInsets.all(dosColumnas ? 20 : 14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: isDark ? AppColors.darkSurface : AppColors.surface,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
             ),
             child: dosColumnas
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: _textos(onVerRutas, onSolicitar, compacto: false)),
+                      Expanded(child: _textos(onVerRutas, onSolicitar, compacto: false, isDark: isDark)),
                       const SizedBox(width: 22),
                       Expanded(flex: 4, child: ilustracion),
                     ],
@@ -50,7 +51,7 @@ class WelcomeHero extends StatelessWidget {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _textos(onVerRutas, onSolicitar, compacto: true),
+                      _textos(onVerRutas, onSolicitar, compacto: true, isDark: isDark),
                       const SizedBox(height: 14),
                       ilustracion,
                     ],
@@ -62,12 +63,12 @@ class WelcomeHero extends StatelessWidget {
   }
 
   /// Columna de texto: distintivo + titular + descripción + acciones.
-  Widget _textos(VoidCallback onVerRutas, VoidCallback onSolicitar, {required bool compacto}) {
+  Widget _textos(VoidCallback onVerRutas, VoidCallback onSolicitar, {required bool compacto, required bool isDark}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const WelcomeBadge(
+        WelcomeBadge(
           texto: 'Bienvenido',
           icon: Icons.star_rounded,
           color: AppColors.rosado,
@@ -80,14 +81,14 @@ class WelcomeHero extends StatelessWidget {
             fontWeight: FontWeight.w800,
             letterSpacing: -0.6,
             height: 1.18,
-            color: AppColors.navy,
+            color: isDark ? Colors.white : AppColors.navy,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Servicio seguro, puntual y monitorizado para acompañar a nuestros '
           'estudiantes en cada recorrido.',
-          style: TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13.5, height: 1.5, color: isDark ? AppColors.darkTextMuted : AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
         Wrap(

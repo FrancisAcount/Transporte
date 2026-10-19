@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../models/live_bus.dart';
 import '../services/live_bus_service.dart';
@@ -57,10 +58,13 @@ class _FleetGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        SectionCard(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      color: isDark ? AppColors.darkBg : AppColors.background,
+      child: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          SectionCard(
           title: 'Flota del conductor',
           subtitle: '${buses.length} unidades — elige tu bus',
           icon: Icons.directions_bus_filled_rounded,
@@ -156,7 +160,7 @@ class _FleetGrid extends StatelessWidget {
           }),
         ),
       ],
-    );
+    ));
   }
 }
 
@@ -193,8 +197,8 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
   StreamSubscription<Position>? positionSub;
   final LiveBusService liveService = LiveBusService();
 
-  GoogleMapController? mapController;
-  Set<Marker> markers = {};
+  late final MapController _mapController;
+  List<Marker> markers = [];
 
   late final AnimationController blinkController;
   late final Animation<double> blinkAnimation;
@@ -202,6 +206,7 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     blinkController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -215,45 +220,46 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
   @override
   void dispose() {
     positionSub?.cancel();
-    mapController?.dispose();
+    _mapController.dispose();
     blinkController.dispose();
     super.dispose();
   }
 
   void _seedMapMarker() {
-    markers = {
-      const Marker(
-        markerId: MarkerId('bus-marker'),
-        position: simCenter,
-        infoWindow: InfoWindow(title: 'Punto base de simulacion'),
+    markers = [
+      Marker(
+        point: simCenter,
+        width: 40,
+        height: 40,
+        child: const Icon(
+          Icons.directions_bus_filled_rounded,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
-    };
+    ];
   }
 
-  Future<void> animateTo(LatLng target) async {
-    final c = mapController;
-    if (c == null) return;
-    try {
-      await c.animateCamera(CameraUpdate.newLatLngZoom(target, 16));
-    } catch (_) {
-      // Mapa aun no listo.
-    }
+  void animateTo(LatLng target) {
+    _mapController.move(target, 16);
   }
 
   void updateMapFromGps(double lat, double lon) {
     final pos = LatLng(lat, lon);
     if (mounted) {
       setState(() {
-        markers = {
+        markers = [
           Marker(
-            markerId: const MarkerId('bus-marker'),
-            position: pos,
-            infoWindow: InfoWindow(
-              title: widget.busId,
-              snippet: '${speedKmh.toStringAsFixed(1)} km/h',
+            point: pos,
+            width: 40,
+            height: 40,
+            child: const Icon(
+              Icons.directions_bus_filled_rounded,
+              color: Colors.white,
+              size: 30,
             ),
           ),
-        };
+        ];
       });
     }
     if (isActive) animateTo(pos);
@@ -396,9 +402,12 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.sizeOf(context).width < 900;
-    return ListView(
-      padding: EdgeInsets.all(isMobile ? 16 : 24),
-      children: [
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      color: isDark ? AppColors.darkBg : AppColors.background,
+      child: ListView(
+        padding: EdgeInsets.all(isMobile ? 16 : 24),
+        children: [
         Row(children: [
           IconButton(
             tooltip: 'Volver a la flota',
@@ -505,17 +514,24 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
             borderRadius: BorderRadius.circular(12),
             child: SizedBox(
               height: 320,
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: lastPosition != null
+              child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: lastPosition != null
                       ? LatLng(lastPosition!.latitude,
                           lastPosition!.longitude)
                       : simCenter,
-                  zoom: 15,
+                  initialZoom: 15,
                 ),
-                markers: markers,
-                onMapCreated: (c) => mapController = c,
-                myLocationEnabled: false,
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName:
+                        'com.maranata.transporte',
+                  ),
+                  MarkerLayer(markers: markers),
+                ],
               ),
             ),
           ),
@@ -575,7 +591,7 @@ class _DriverBusDetailState extends State<_DriverBusDetail>
               const TextStyle(fontSize: 12, color: AppColors.textMuted),
         ),
       ],
-    );
+    ));
   }
 }
 
